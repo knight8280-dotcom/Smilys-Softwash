@@ -119,13 +119,41 @@ same Square account as invoices and card-reader sales.
   quotes (with permission) before going live.
 - **Stats** — the "500+ homes renewed" style numbers in the trust strip are
   placeholders. Adjust to real figures.
-- **Before/after photos** — the site has no photo gallery yet. Real job photos
-  are the single biggest conversion win for this kind of business; drop them in
-  `assets/` and a gallery section can be added.
+- **More before/after photos** — the `#work` section holds one driveway job so
+  far. Real job photos are the biggest conversion win for this business, so
+  keep adding them.
 - **Domain** — `<link rel="canonical">` and the Open Graph tags in `index.html`
   point at `smilyssoftwash.com`. Update if the real domain differs.
 - **Business details** — hours, service area towns, and the license/insurance
   claims all live in `index.html` and should be confirmed before going live.
+
+## Adding more before/after photos
+
+Photos straight off a phone are 1–4 MB each, which is slow on mobile data.
+Shrink them before committing (Pillow is the quickest way):
+
+```python
+from PIL import Image, ImageOps
+im = ImageOps.exif_transpose(Image.open("IMG_1234.jpg")).convert("RGB")
+im.thumbnail((1200, 1200))
+im.save("assets/roof-before.jpg", "JPEG", quality=80, optimize=True, progressive=True)
+```
+
+That takes a ~1 MB phone photo down to roughly 200 KB with no visible loss at
+the size it's displayed. `exif_transpose` matters — without it, portrait phone
+photos show up rotated in some browsers.
+
+Then copy the `<figure class="ba">` block in `index.html` and swap the two
+image paths, the alt text and the caption. The layout handles any number of
+them stacked.
+
+**Shooting them well** — the pair sells the job, so:
+- Same spot, same framing, same time of day. Matching light is what makes the
+  difference read as *cleaning* rather than *weather*.
+- Take the "before" from a marked position so the "after" lines up.
+- Get low and close to the surface rather than shooting the whole street.
+- Write alt text describing the surface and its condition, not "before photo" —
+  it's what a screen reader announces and what Google indexes.
 
 ## Deploying
 
