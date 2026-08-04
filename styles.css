@@ -472,6 +472,65 @@ input:focus, select:focus, textarea:focus {
 .faq details[open] summary::after { content: "–"; }
 .faq details p { padding-bottom: 1.2rem; margin: 0; font-size: .97rem; }
 
+/* ---------- Pay online ---------- */
+.pay-grid {
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+}
+.pay-copy .ticks { margin-top: 1.2rem; }
+.pay-copy .ticks li { margin-bottom: .5rem; }
+
+.pay-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  padding: clamp(1.6rem, 3vw, 2.2rem);
+  text-align: center;
+}
+.pay-lock {
+  display: inline-grid; place-items: center;
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--navy), var(--aqua-deep));
+  margin-bottom: .9rem;
+}
+.pay-lock svg { width: 26px; height: 26px; fill: #fff; }
+.pay-card-head h3 { font-size: 1.6rem; margin-bottom: .3rem; }
+.pay-card-head p { font-size: .95rem; margin-bottom: 1.4rem; }
+
+.pay-cards {
+  font-size: .82rem;
+  color: var(--body);
+  letter-spacing: .02em;
+  margin: 1rem 0 0;
+}
+.pay-secure {
+  font-size: .85rem;
+  color: var(--body);
+  background: var(--tint);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: .7rem .9rem;
+  margin: 1rem 0 0;
+}
+.pay-alt { font-size: .92rem; margin: 1rem 0 0; }
+.pay-alt a { font-weight: 600; white-space: nowrap; }
+
+/* Payment link not configured yet — script.js swaps in a call-to-invoice state */
+.pay-card.pay-pending .pay-cards { display: none; }
+
+/* Honeypot: off-screen for bots, invisible and unfocusable for people */
+.hp {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  left: -9999px;
+}
+
 /* ---------- Quote section ---------- */
 .quote-grid {
   display: grid; grid-template-columns: .9fr 1.1fr;
@@ -552,7 +611,7 @@ input:focus, select:focus, textarea:focus {
 @media (max-width: 1000px) {
   .hero-inner { grid-template-columns: 1fr; }
   .hero-card { max-width: 520px; }
-  .why-grid, .quote-grid { grid-template-columns: 1fr; }
+  .why-grid, .quote-grid, .pay-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
 }
 

@@ -82,9 +82,10 @@
       <a href="#services">Services</a>
       <a href="#why">Why Us</a>
       <a href="#process">Process</a>
-      <a href="#areas">Service Area</a>
+      <a href="#areas">Areas</a>
       <a href="#reviews">Reviews</a>
       <a href="#faq">FAQ</a>
+      <a href="#pay">Pay</a>
       <a class="btn btn-primary nav-cta" href="#quote">Free Quote</a>
       <a class="btn btn-ghost nav-call" href="tel:+12254055532">225-405-5532</a>
     </nav>
@@ -126,6 +127,8 @@
           <p>Tell us what needs cleaning. We'll get right back to you.</p>
         </div>
         <form class="quick-form" data-quote-form>
+          <!-- Spam trap: real people never see this, bots fill it in. -->
+          <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
           <label class="field">
             <span>Name</span>
             <input type="text" name="name" autocomplete="name" required>
@@ -468,6 +471,51 @@
     </div>
   </section>
 
+  <!-- PAY ONLINE -->
+  <section class="section section-tint" id="pay">
+    <div class="wrap pay-grid">
+      <div class="pay-copy">
+        <p class="eyebrow">Already Had Work Done?</p>
+        <h2>Pay your invoice online</h2>
+        <p>
+          No check to write, no cash to run to the bank. Pay the amount on your
+          invoice right from your phone the same day we finish — or put down a
+          deposit to lock in a spot on the schedule.
+        </p>
+        <ul class="ticks">
+          <li>Pay by card, Apple Pay, Google Pay or Cash App Pay</li>
+          <li>Enter the exact amount from your invoice</li>
+          <li>Emailed receipt the moment it goes through</li>
+          <li>Deposits and final payments both welcome</li>
+        </ul>
+      </div>
+
+      <div class="pay-card">
+        <div class="pay-card-head">
+          <span class="pay-lock" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2a5 5 0 0 0-5 5v3H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V7zm3 7a1.6 1.6 0 0 1 .8 3l.4 2.2h-2.4l.4-2.2A1.6 1.6 0 0 1 12 14z"/></svg>
+          </span>
+          <h3>Make a payment</h3>
+          <p>You'll be taken to our secure Square checkout page.</p>
+        </div>
+
+        <a class="btn btn-primary btn-block btn-lg" data-pay-link href="#pay">Pay Now</a>
+
+        <p class="pay-cards">Visa &middot; Mastercard &middot; Amex &middot; Discover &middot; Apple Pay &middot; Cash App Pay</p>
+
+        <p class="pay-secure">
+          Payments are handled entirely by Square. Card numbers are never entered
+          on or stored by this website.
+        </p>
+
+        <p class="pay-alt">
+          Rather pay by check, or need an invoice sent over?
+          <a href="tel:+12254055532">Call 225-405-5532</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
   <!-- QUOTE -->
   <section class="section section-dark" id="quote">
     <div class="wrap quote-grid">
@@ -520,6 +568,8 @@
       </div>
 
       <form class="quote-form" data-quote-form>
+        <!-- Spam trap: real people never see this, bots fill it in. -->
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off">
         <div class="grid-2">
           <label class="field">
             <span>Name</span>
@@ -597,6 +647,7 @@
         <li><a href="#areas">Service Area</a></li>
         <li><a href="#reviews">Reviews</a></li>
         <li><a href="#faq">FAQ</a></li>
+        <li><a href="#pay">Pay an Invoice</a></li>
       </ul>
     </div>
 

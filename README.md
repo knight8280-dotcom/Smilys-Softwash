@@ -25,31 +25,72 @@ python3 -m http.server 8000
 # then visit http://localhost:8000
 ```
 
-## Hooking up the quote form
+## Setup: two values to fill in
 
-Both quote forms (the one in the hero and the full one at the bottom) currently
-work **without a server** — submitting opens the visitor's email app with all the
-details pre-filled.
-
-To have submissions delivered to an inbox instead, create a free endpoint with a
-form service (Formspree, Basin, Netlify Forms, etc.) and paste the URL into
+Everything configurable lives in one place — the `CONFIG` block at the top of
 `script.js`:
 
 ```js
 const CONFIG = {
-  FORM_ENDPOINT: "https://formspree.io/f/xxxxxxx",   // <- paste here
-  EMAIL: "knight8280@gmail.com",
+  WEB3FORMS_KEY: "",                    // quote requests → email
+  SQUARE_PAY_LINK: "",                  // the Pay Now button
+  BUSINESS_EMAIL: "knight8280@gmail.com",
   PHONE: "+12254055532",
 };
 ```
 
-Nothing else needs to change — the form posts there and shows a success message
-in place.
+Both are safe to keep in this file. Neither one can move money or read mail on
+its own — the form key only lets a submission be *sent* to the verified address,
+and the Square link is the same public URL you'd text a customer.
+
+Until each is filled in, the site degrades gracefully rather than breaking:
+the forms fall back to opening the visitor's email app, and Pay Now becomes a
+call button. A customer never hits a dead end either way.
+
+### 1. Quote requests → email (Web3Forms)
+
+1. Go to **web3forms.com** and enter the business email address.
+2. Click the confirmation link in the email it sends.
+3. Copy the access key and paste it into `WEB3FORMS_KEY`.
+
+Every submission from either form then emails that address within seconds.
+Subject lines read `New quote request — Jane Doe — Roof, Driveway`, so the job
+is readable from a phone lock screen. Hitting reply goes to the customer if they
+left an email address.
+
+Both forms carry a hidden honeypot field that Web3Forms uses to drop bot
+submissions. Free tier covers 250 submissions a month.
+
+**Change the destination address** by re-registering that address at
+web3forms.com and swapping in the new key — the key *is* the destination.
+Update `BUSINESS_EMAIL` to match, since that's the fallback used when the key
+is missing.
+
+### 2. Pay Now button (Square)
+
+1. In the Square Dashboard, go to **Payments → Payment Links → Create**.
+2. Choose **Collect a payment**.
+3. Turn on **Let customer enter the amount** — job prices vary, so a fixed
+   amount would mean a new link for every customer.
+4. Name it something the customer will recognize on their statement, e.g.
+   "Smilys Softwash — Invoice Payment".
+5. Copy the `square.link` URL and paste it into `SQUARE_PAY_LINK`.
+
+The button opens Square's hosted checkout in a new tab. Card details are entered
+on Square's page, never on this site — that keeps the business out of PCI scope
+entirely, which is exactly why it's built this way. **Don't** replace this with a
+card form on the site.
+
+Square emails the customer a receipt automatically and the payment lands in the
+same Square account as invoices and card-reader sales.
 
 ## Things worth updating
 
 - **Phone/email** — set in `script.js` (`CONFIG`) and in the `tel:` / `sms:`
   links in `index.html`.
+- **Payment copy** — the Pay Online section promises Apple Pay, Google Pay and
+  Cash App Pay. Square supports all three, but confirm they're switched on in
+  the Square account before going live.
 - **Reviews** — the three testimonials in the `#reviews` section are
   placeholders written to sound like real local jobs. Swap in actual customer
   quotes (with permission) before going live.

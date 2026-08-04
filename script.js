@@ -3,20 +3,30 @@
    ========================================================= */
 
 /* ---------------------------------------------------------
-   CONFIG
+   CONFIG — the only part of this file that needs editing.
 
-   The quote forms work with no server. Until a form service is
-   hooked up, submitting opens the visitor's email (or texting)
-   app with everything already filled in.
+   Two things to fill in. Both are safe to have in this file:
+   neither one can move money or read mail on its own.
 
-   To send quotes straight to an inbox instead:
-     1. Make a free form endpoint (Formspree, Basin, Netlify Forms…)
-     2. Paste the URL into FORM_ENDPOINT below.
-   Everything else keeps working as-is.
+   1. WEB3FORMS_KEY — emails every quote request straight to
+      BUSINESS_EMAIL, within seconds of someone hitting submit.
+      Get the key free at web3forms.com: type the business email,
+      click the confirmation link it sends, copy the access key.
+
+   2. SQUARE_PAY_LINK — the "Pay Now" button on the site.
+      In Square Dashboard: Payments → Payment Links → Create →
+      "Collect a payment", turn ON "Let customer enter the amount",
+      then copy the square.link URL it gives you.
+
+   Until each one is filled in, the site degrades gracefully
+   instead of breaking: the forms fall back to opening the
+   visitor's email app, and the Pay Now button becomes a call
+   button. Nothing looks broken to a customer either way.
 --------------------------------------------------------- */
 const CONFIG = {
-  FORM_ENDPOINT: "",                    // e.g. "https://formspree.io/f/xxxxxxx"
-  EMAIL: "knight8280@gmail.com",        // fallback inbox for quote requests
+  WEB3FORMS_KEY: "",                    // e.g. "a1b2c3d4-0000-0000-0000-abcdef123456"
+  SQUARE_PAY_LINK: "",                  // e.g. "https://square.link/u/XXXXXXXX"
+  BUSINESS_EMAIL: "knight8280@gmail.com",
   PHONE: "+12254055532",
 };
 
@@ -72,6 +82,12 @@ function buildMessage(q) {
   return lines.join("\n");
 }
 
+// Subject line the owner sees in his inbox — name and job up front so it's
+// readable from a phone lock screen without opening the email.
+function buildSubject(q) {
+  return `New quote request — ${q.name}${q.services ? " — " + q.services : ""}`;
+}
+
 function setStatus(form, text, kind) {
   const el = form.querySelector(".form-status");
   if (!el) return;
@@ -79,21 +95,44 @@ function setStatus(form, text, kind) {
   el.className = "form-status" + (kind ? " " + kind : "");
 }
 
-async function submitToEndpoint(form, q) {
-  const res = await fetch(CONFIG.FORM_ENDPOINT, {
+async function submitToWeb3Forms(form, q) {
+  const res = await fetch("https://api.web3forms.com/submit", {
     method: "POST",
-    headers: { Accept: "application/json" },
-    body: new FormData(form),
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({
+      access_key: CONFIG.WEB3FORMS_KEY,
+      subject: buildSubject(q),
+      from_name: "Smilys Softwash website",
+      // Lets the owner hit reply and land in the customer's inbox.
+      replyto: q.email || undefined,
+
+      // Named fields so the email body is laid out, not a blob.
+      name: q.name,
+      phone: q.phone,
+      email: q.email || "(not given)",
+      city: q.city || "(not given)",
+      service_needed: q.services || "(not specified)",
+      details: q.details || "(none)",
+      submitted_from: form.classList.contains("quick-form")
+        ? "Hero quick-quote form"
+        : "Full quote form",
+
+      // Spam trap — Web3Forms drops the submission when this is filled.
+      botcheck: form.querySelector('[name="botcheck"]')?.checked || false,
+    }),
   });
-  if (!res.ok) throw new Error("Request failed: " + res.status);
-  return q;
+
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || body.success === false) {
+    throw new Error(body.message || "Request failed: " + res.status);
+  }
+  return body;
 }
 
 function openMailFallback(q) {
-  const subject = `Quote request${q.services ? " — " + q.services : ""}`;
   const href =
-    `mailto:${CONFIG.EMAIL}` +
-    `?subject=${encodeURIComponent(subject)}` +
+    `mailto:${CONFIG.BUSINESS_EMAIL}` +
+    `?subject=${encodeURIComponent(buildSubject(q))}` +
     `&body=${encodeURIComponent(buildMessage(q))}`;
   window.location.href = href;
 }
@@ -111,16 +150,16 @@ document.querySelectorAll("[data-quote-form]").forEach((form) => {
     const btn = form.querySelector("button[type=submit]");
     const label = btn?.textContent;
 
-    if (CONFIG.FORM_ENDPOINT) {
+    if (CONFIG.WEB3FORMS_KEY) {
       if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
       try {
-        await submitToEndpoint(form, q);
+        await submitToWeb3Forms(form, q);
         form.reset();
         setStatus(form, "Got it! We'll be in touch shortly — usually the same day.", "ok");
       } catch (err) {
         setStatus(
           form,
-          `Something went wrong sending that. Please call us at ${formatPhone(CONFIG.PHONE)}.`,
+          `Something went wrong sending that. Please call or text us at ${formatPhone(CONFIG.PHONE)}.`,
           "err"
         );
       } finally {
@@ -129,7 +168,7 @@ document.querySelectorAll("[data-quote-form]").forEach((form) => {
       return;
     }
 
-    // No endpoint configured — hand off to the visitor's email app.
+    // No form key configured yet — hand off to the visitor's email app.
     openMailFallback(q);
     setStatus(
       form,
@@ -143,6 +182,28 @@ function formatPhone(e164) {
   const d = e164.replace(/\D/g, "").slice(-10);
   return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
 }
+
+/* ---------- Pay Now button ----------
+   Points at the Square checkout link once one is configured. Until then it
+   becomes a call button, so a customer never taps a dead link. */
+document.querySelectorAll("[data-pay-link]").forEach((el) => {
+  if (CONFIG.SQUARE_PAY_LINK) {
+    el.href = CONFIG.SQUARE_PAY_LINK;
+    el.target = "_blank";
+    el.rel = "noopener";
+    return;
+  }
+
+  el.href = "tel:" + CONFIG.PHONE;
+  el.textContent = `Call ${formatPhone(CONFIG.PHONE)} to Pay`;
+
+  const card = el.closest(".pay-card");
+  if (!card) return;
+  card.classList.add("pay-pending");
+
+  const note = card.querySelector(".pay-card-head p");
+  if (note) note.textContent = "Card payments are being set up. Give us a call and we'll take it over the phone or send an invoice.";
+});
 
 /* ---------- Reveal on scroll ---------- */
 const reveals = document.querySelectorAll(".card, .steps li, .quote, .why-list li");
