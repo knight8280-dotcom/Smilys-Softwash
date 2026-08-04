@@ -304,12 +304,17 @@ input:focus, select:focus, textarea:focus {
 .section-sub { font-size: 1.05rem; }
 
 /* ---------- Service cards ---------- */
+/* Flex rather than grid so a partial last row centers instead of
+   leaving a hole in the third column. */
 .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1.4rem;
 }
 .card {
+  flex: 1 1 300px;
+  max-width: 380px;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
