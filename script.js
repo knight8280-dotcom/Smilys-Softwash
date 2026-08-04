@@ -26,7 +26,7 @@
 const CONFIG = {
   WEB3FORMS_KEY: "",                    // e.g. "a1b2c3d4-0000-0000-0000-abcdef123456"
   SQUARE_PAY_LINK: "",                  // e.g. "https://square.link/u/XXXXXXXX"
-  BUSINESS_EMAIL: "knight8280@gmail.com",
+  BUSINESS_EMAIL: "Smilys_softwash@yahoo.com",
   PHONE: "+12254055532",
 };
 

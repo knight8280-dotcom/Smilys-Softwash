@@ -34,7 +34,7 @@ Everything configurable lives in one place — the `CONFIG` block at the top of
 const CONFIG = {
   WEB3FORMS_KEY: "",                    // quote requests → email
   SQUARE_PAY_LINK: "",                  // the Pay Now button
-  BUSINESS_EMAIL: "knight8280@gmail.com",
+  BUSINESS_EMAIL: "Smilys_softwash@yahoo.com",
   PHONE: "+12254055532",
 };
 ```
@@ -49,9 +49,14 @@ call button. A customer never hits a dead end either way.
 
 ### 1. Quote requests → email (Web3Forms)
 
-1. Go to **web3forms.com** and enter the business email address.
-2. Click the confirmation link in the email it sends.
-3. Copy the access key and paste it into `WEB3FORMS_KEY`.
+1. Go to **web3forms.com** and enter `Smilys_softwash@yahoo.com`.
+2. Open that inbox and click the confirmation link it sends.
+3. Copy the access key it shows and paste it into `WEB3FORMS_KEY`.
+
+That inbox is already set as `BUSINESS_EMAIL`, so the mail-app fallback points
+there too. Yahoo filters new senders aggressively — after the first test
+submission, check Spam and mark it "not spam" so later requests land in the
+inbox.
 
 Every submission from either form then emails that address within seconds.
 Subject lines read `New quote request — Jane Doe — Roof, Driveway`, so the job
