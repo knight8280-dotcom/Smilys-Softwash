@@ -73,13 +73,31 @@ is missing.
 
 ### 2. Pay Now button (Square)
 
-1. In the Square Dashboard, go to **Payments → Payment Links → Create**.
-2. Choose **Collect a payment**.
-3. Turn on **Let customer enter the amount** — job prices vary, so a fixed
-   amount would mean a new link for every customer.
-4. Name it something the customer will recognize on their statement, e.g.
-   "Smilys Softwash — Invoice Payment".
-5. Copy the `square.link` URL and paste it into `SQUARE_PAY_LINK`.
+The link type must be **Collect a payment** with the buyer-entered amount
+option switched on. Job prices vary, so a fixed-price link would mean creating
+a new link for every customer. The option is labelled differently depending on
+where you make it:
+
+**On a phone (Square Point of Sale app):**
+
+1. `☰ More` → `Payment links`. Not there? `☰ More` → `Add-ons` →
+   `Payment links` → `Add for free`.
+2. Tap `+`, choose **Collect a payment**.
+3. Name it `Smilys Softwash — Invoice Payment` (this is what the customer sees
+   at checkout, so avoid anything cryptic).
+4. Toggle **Allow buyer to enter amount** ON — it sits at the bottom of the
+   form and is easy to scroll past.
+5. `Save` → open the link → `Share link` → `Copy link`.
+
+**On a computer (Square Dashboard):**
+
+1. `Payments & orders` → `Payment links` → `Create link`.
+2. **Collect a payment** → `Continue`.
+3. Tick **Allow buyer to set the price**.
+4. Title it, `Save`, then `Share` → copy the URL.
+
+Either way you end up with a `square.link/u/XXXXXXXX` URL. Paste it into
+`SQUARE_PAY_LINK`.
 
 The button opens Square's hosted checkout in a new tab. Card details are entered
 on Square's page, never on this site — that keeps the business out of PCI scope
