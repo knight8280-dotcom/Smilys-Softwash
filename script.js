@@ -26,6 +26,7 @@
 const CONFIG = {
   WEB3FORMS_KEY: "",                    // e.g. "a1b2c3d4-0000-0000-0000-abcdef123456"
   SQUARE_PAY_LINK: "",                  // e.g. "https://square.link/u/XXXXXXXX"
+  FACEBOOK_URL: "",                     // e.g. "https://www.facebook.com/smilyssoftwash"
   BUSINESS_EMAIL: "Smilys_softwash@yahoo.com",
   PHONE: "+12254055532",
 };
@@ -182,6 +183,19 @@ function formatPhone(e164) {
   const d = e164.replace(/\D/g, "").slice(-10);
   return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
 }
+
+/* ---------- Facebook links ----------
+   Every Facebook link on the page is driven by CONFIG.FACEBOOK_URL. Until one
+   is set they're removed rather than left pointing nowhere. */
+const fbLinks = document.querySelectorAll("[data-facebook-link]");
+fbLinks.forEach((el) => {
+  if (CONFIG.FACEBOOK_URL) {
+    el.href = CONFIG.FACEBOOK_URL;
+    return;
+  }
+  // Drop the whole wrapper when there is one, so no empty row is left behind.
+  (el.closest("[data-facebook-wrap]") || el).remove();
+});
 
 /* ---------- Pay Now button ----------
    Points at the Square checkout link once one is configured. Until then it

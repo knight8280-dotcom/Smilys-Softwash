@@ -34,6 +34,7 @@ Everything configurable lives in one place — the `CONFIG` block at the top of
 const CONFIG = {
   WEB3FORMS_KEY: "",                    // quote requests → email
   SQUARE_PAY_LINK: "",                  // the Pay Now button
+  FACEBOOK_URL: "",                     // every Facebook link on the page
   BUSINESS_EMAIL: "Smilys_softwash@yahoo.com",
   PHONE: "+12254055532",
 };
@@ -126,6 +127,22 @@ same Square account as invoices and card-reader sales.
   point at `smilyssoftwash.com`. Update if the real domain differs.
 - **Business details** — hours, service area towns, and the license/insurance
   claims all live in `index.html` and should be confirmed before going live.
+
+### 3. Facebook link
+
+Paste the page URL into `FACEBOOK_URL`. It drives all four Facebook links at
+once — the footer follow button, the footer nav item, the contact list in the
+quote section, and the "more before-and-afters" line under the gallery. While
+it's empty, all four remove themselves rather than sit there pointing nowhere.
+
+To get the URL: open the page in the Facebook app, tap `⋯` → `Copy link`, or
+open it in a browser and copy the address bar. It should look like
+`https://www.facebook.com/smilyssoftwash` or
+`https://www.facebook.com/p/Name-100012345678901`.
+
+Once it's set, also add it to the `sameAs` field of the JSON-LD block in
+`index.html` — that's how Google ties the site and the Facebook page together
+as one business.
 
 ## Adding more before/after photos
 
