@@ -219,6 +219,48 @@ document.querySelectorAll("[data-pay-link]").forEach((el) => {
   if (note) note.textContent = "Card payments are being set up. Give us a call and we'll take it over the phone or send an invoice.";
 });
 
+/* ---------- Photo zoom ----------
+   Job photos are detail shots — a rust stain or a shingle line is hard to
+   judge at gallery size, so tapping one opens it full screen. */
+const zoomTriggers = document.querySelectorAll("[data-zoom]");
+if (zoomTriggers.length) {
+  const overlay = document.createElement("div");
+  overlay.className = "zoom";
+  overlay.innerHTML =
+    '<button class="zoom-close" type="button" aria-label="Close photo">&times;</button><img alt="">';
+  document.body.appendChild(overlay);
+
+  const overlayImg = overlay.querySelector("img");
+  let lastFocused = null;
+
+  const open = (img) => {
+    overlayImg.src = img.src;
+    overlayImg.alt = img.alt;
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+    overlay.querySelector(".zoom-close").focus();
+  };
+
+  const close = () => {
+    overlay.classList.remove("open");
+    document.body.style.overflow = "";
+    overlayImg.removeAttribute("src");
+    lastFocused?.focus();
+  };
+
+  zoomTriggers.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      lastFocused = btn;
+      open(btn.querySelector("img"));
+    });
+  });
+
+  overlay.addEventListener("click", close);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay.classList.contains("open")) close();
+  });
+}
+
 /* ---------- Reveal on scroll ---------- */
 const reveals = document.querySelectorAll(".card, .steps li, .quote, .why-list li");
 if ("IntersectionObserver" in window &&

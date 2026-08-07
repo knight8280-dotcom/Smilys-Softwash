@@ -459,9 +459,103 @@ input:focus, select:focus, textarea:focus {
   margin-inline: auto;
 }
 
+.ba-more {
+  text-align: center;
+  margin: 3rem 0 1.6rem;
+}
+.ba-more h3 {
+  display: inline-block;
+  font-size: 1.5rem;
+  color: var(--navy);
+  position: relative;
+  padding: 0 1.2rem;
+}
+.ba-more h3::before,
+.ba-more h3::after {
+  content: "";
+  position: absolute; top: 50%;
+  width: 2.5rem; height: 2px;
+  background: var(--line);
+}
+.ba-more h3::before { right: 100%; }
+.ba-more h3::after { left: 100%; }
+
+/* Mixed portrait and square collages — columns keep each photo's own shape
+   instead of cropping them all to one grid cell. */
+.gallery {
+  columns: 2;
+  column-gap: 1.4rem;
+}
+.shot {
+  break-inside: avoid;
+  margin: 0 0 1.4rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+.shot:hover { box-shadow: var(--shadow); border-color: rgba(34,184,240,.5); }
+
+.shot-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+.shot-btn img { width: 100%; display: block; }
+
+.shot figcaption {
+  padding: 1.1rem 1.3rem 1.3rem;
+  font-size: .94rem;
+}
+.shot figcaption b {
+  display: block;
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-size: 1.15rem;
+  color: var(--ink);
+  margin-bottom: .3rem;
+}
+
+/* Zoom overlay */
+.zoom {
+  position: fixed; inset: 0; z-index: 200;
+  display: none;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(8,10,35,.92);
+  backdrop-filter: blur(3px);
+  cursor: zoom-out;
+}
+.zoom.open { display: grid; }
+.zoom img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: var(--r);
+  box-shadow: var(--shadow-lg);
+}
+.zoom-close {
+  position: absolute; top: 1rem; right: 1.2rem;
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  font-size: 1.8rem; line-height: 1;
+  color: #fff;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.zoom-close:hover { background: rgba(255,255,255,.22); }
+
 @media (max-width: 700px) {
   .ba-pair { grid-template-columns: 1fr; gap: .9rem; }
   .ba-shot img { aspect-ratio: 3 / 2; }
+  .gallery { columns: 1; }
 }
 
 /* ---------- Areas ---------- */

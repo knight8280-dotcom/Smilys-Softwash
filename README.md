@@ -160,9 +160,20 @@ That takes a ~1 MB phone photo down to roughly 200 KB with no visible loss at
 the size it's displayed. `exif_transpose` matters — without it, portrait phone
 photos show up rotated in some browsers.
 
-Then copy the `<figure class="ba">` block in `index.html` and swap the two
-image paths, the alt text and the caption. The layout handles any number of
-them stacked.
+There are two layouts in the `#work` section, depending on what you have:
+
+- **Two separate files** (a before shot and an after shot) → copy the
+  `<figure class="ba">` block and swap the two image paths, alt text and
+  caption. It renders them side by side with Before/After badges.
+- **One image with before and after already in it** (the collages from
+  Facebook) → copy a `<figure class="shot">` block in the `.gallery` grid and
+  swap the path, alt text, title and caption. The grid uses CSS columns, so
+  portrait and square photos each keep their own shape instead of being
+  cropped to match.
+
+Gallery photos open full screen when tapped — that's `[data-zoom]` in
+`index.html` wired up at the bottom of `script.js`. Detail shots like the rust
+stain are unreadable at thumbnail size otherwise.
 
 **Shooting them well** — the pair sells the job, so:
 - Same spot, same framing, same time of day. Matching light is what makes the
