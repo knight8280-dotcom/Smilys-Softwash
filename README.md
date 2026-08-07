@@ -128,21 +128,19 @@ same Square account as invoices and card-reader sales.
 - **Business details** — hours, service area towns, and the license/insurance
   claims all live in `index.html` and should be confirmed before going live.
 
-### 3. Facebook link
+### 3. Facebook link — done
 
-Paste the page URL into `FACEBOOK_URL`. It drives all four Facebook links at
-once — the footer follow button, the footer nav item, the contact list in the
-quote section, and the "more before-and-afters" line under the gallery. While
-it's empty, all four remove themselves rather than sit there pointing nowhere.
+`FACEBOOK_URL` is set to `https://www.facebook.com/share/1YXxZPPUpR/`, the
+share-link form of the page (numeric page id `61551017668250`). It drives all
+four Facebook links at once — the footer follow button, the footer nav item,
+the contact list in the quote section, and the "more before-and-afters" line
+under the gallery. It's also in the `sameAs` field of the JSON-LD block in
+`index.html`, which is how Google ties the site and the page together as one
+business.
 
-To get the URL: open the page in the Facebook app, tap `⋯` → `Copy link`, or
-open it in a browser and copy the address bar. It should look like
-`https://www.facebook.com/smilyssoftwash` or
-`https://www.facebook.com/p/Name-100012345678901`.
-
-Once it's set, also add it to the `sameAs` field of the JSON-LD block in
-`index.html` — that's how Google ties the site and the Facebook page together
-as one business.
+If a username is ever claimed on the page (Settings → Page setup → Username),
+swap both spots to `https://www.facebook.com/<username>`. It's shorter, reads
+better in the footer, and is worth doing for search.
 
 ## Adding more before/after photos
 

@@ -26,7 +26,10 @@
 const CONFIG = {
   WEB3FORMS_KEY: "",                    // e.g. "a1b2c3d4-0000-0000-0000-abcdef123456"
   SQUARE_PAY_LINK: "",                  // e.g. "https://square.link/u/XXXXXXXX"
-  FACEBOOK_URL: "",                     // e.g. "https://www.facebook.com/smilyssoftwash"
+  // Share-link form of the page (numeric page id 61551017668250). If a
+  // username is ever set on the page, swap in facebook.com/<username> — it's
+  // shorter and reads better in the footer.
+  FACEBOOK_URL: "https://www.facebook.com/share/1YXxZPPUpR/",
   BUSINESS_EMAIL: "Smilys_softwash@yahoo.com",
   PHONE: "+12254055532",
 };
