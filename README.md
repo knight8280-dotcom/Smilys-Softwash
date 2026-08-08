@@ -181,6 +181,32 @@ stain are unreadable at thumbnail size otherwise.
 - Write alt text describing the surface and its condition, not "before photo" —
   it's what a screen reader announces and what Google indexes.
 
+## Getting found on Google
+
+`robots.txt` and `sitemap.xml` are in the repo root and served at
+`smilyssoftwash.com/robots.txt` and `/sitemap.xml`. **Update `<lastmod>` in the
+sitemap when the page changes meaningfully** — new services, new photos, a
+rewrite. It's a hint to Google that there's something new to re-crawl.
+
+The page already carries the on-page basics: a descriptive `<title>`, a meta
+description, a canonical URL, Open Graph tags for link previews, and a
+`HomeAndConstructionBusiness` JSON-LD block with the phone number, hours and
+the list of towns served.
+
+Two things that actually move the needle, in order:
+
+1. **Google Business Profile** (google.com/business) — free. This is what puts
+   a local service business in the map pack for "pressure washing near me",
+   which is where the calls come from. It matters more than the website's
+   organic ranking, and it's the one place customer reviews accumulate.
+2. **Google Search Console** (search.google.com/search-console) — verify the
+   domain, submit the sitemap, and use URL Inspection → Request Indexing to
+   push the page into the queue instead of waiting to be discovered.
+
+Don't add review or rating markup to the JSON-LD until there are real reviews
+to point at. Fake review schema is a manual-penalty risk, and the three
+testimonials currently on the page are placeholders.
+
 ## Deploying
 
 Any static host works. Drag the folder onto Netlify, or enable GitHub Pages on
