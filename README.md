@@ -48,23 +48,26 @@ Until each is filled in, the site degrades gracefully rather than breaking:
 the forms fall back to opening the visitor's email app, and Pay Now becomes a
 call button. A customer never hits a dead end either way.
 
-### 1. Quote requests → email (Web3Forms) — done
+### 1. Quote requests → email (Web3Forms)
 
-`WEB3FORMS_KEY` is set, delivering to `Smilys_softwash@yahoo.com`. Both forms
-post to Web3Forms from the browser and the email arrives within seconds.
+`WEB3FORMS_KEY` is set and working. Both forms post to Web3Forms from the
+browser and the email arrives within seconds.
+
+**Pending: the key still delivers to the old `Smilys_softwash@yahoo.com`
+address.** The business has moved to `smilyssoftwash@gmail.com`, which is what
+the site now displays and what `BUSINESS_EMAIL` holds. A Web3Forms key *is* the
+destination — it can't be repointed — so finishing the move means registering
+the Gmail address at web3forms.com, confirming it, and swapping in the new key.
 
 Note that Web3Forms rejects **server-side** posts on the free plan — the API
 only accepts submissions from a browser. That's fine for how the site uses it,
 but it does mean the integration can't be smoke-tested with `curl`; a real
 submission from a browser is the only way to verify it.
 
-Yahoo filters unfamiliar senders hard. After the first test submission, check
-the Spam folder and mark it "not spam" so later requests land in the inbox.
-
-**Changing the destination address** means re-registering the new address at
-web3forms.com and swapping in the key it gives you — the key *is* the
-destination. Update `BUSINESS_EMAIL` to match, since that's the fallback used
-if the key is ever removed.
+Whichever inbox is in use, check the Spam folder after the first test
+submission and mark the message "not spam" — this mail comes from Web3Forms'
+domain rather than the business's own, so a first-time filter hit is likely.
+Miss that step and customer leads pile up somewhere nobody looks.
 
 Every submission from either form then emails that address within seconds.
 Subject lines read `New quote request — Jane Doe — Roof, Driveway`, so the job

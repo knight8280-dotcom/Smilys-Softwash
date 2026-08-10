@@ -30,7 +30,11 @@ const CONFIG = {
   // username is ever set on the page, swap in facebook.com/<username> — it's
   // shorter and reads better in the footer.
   FACEBOOK_URL: "https://www.facebook.com/share/1YXxZPPUpR/",
-  BUSINESS_EMAIL: "Smilys_softwash@yahoo.com",
+  // Business address of record, shown on the page and used by the mail-app
+  // fallback. Note the Web3Forms key above still delivers to the old Yahoo
+  // address — the key IS the destination, so moving quote requests here needs
+  // a new key registered against this address at web3forms.com.
+  BUSINESS_EMAIL: "smilyssoftwash@gmail.com",
   PHONE: "+12254055532",
 };
 
