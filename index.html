@@ -85,24 +85,28 @@
     </button>
 
     <nav class="site-nav" id="siteNav" aria-label="Main">
-      <a href="#services">Services</a>
-      <a href="#why">Why Us</a>
-      <a href="#work">Our Work</a>
-      <a href="#areas">Areas</a>
-      <a href="#reviews">Reviews</a>
-      <a href="#faq">FAQ</a>
-      <a href="#pay">Pay</a>
+      <a href="#services" data-nav-link>Services</a>
+      <a href="#work" data-nav-link>Our Work</a>
+      <a href="#why" data-nav-link>Why Us</a>
+      <a href="#areas" data-nav-link>Areas</a>
+      <a href="#reviews" data-nav-link>Reviews</a>
+      <a href="#faq" data-nav-link>FAQ</a>
+      <a href="#pay" data-nav-link>Pay</a>
       <a class="btn btn-primary nav-cta" href="#quote">Free Quote</a>
       <a class="btn btn-ghost nav-call" href="tel:+12254055532">225-405-5532</a>
     </nav>
   </div>
 </header>
 
+<div class="nav-scrim" id="navScrim" hidden></div>
+
 <main id="main">
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-bg" aria-hidden="true">
+      <img src="assets/hero-roof.jpg" alt="" width="1080" height="1000" fetchpriority="high" decoding="async">
+    </div>
     <div class="wrap hero-inner">
       <div class="hero-copy">
         <p class="eyebrow">Soft Wash &amp; Pressure Washing</p>
@@ -167,9 +171,9 @@
   <!-- TRUST STRIP -->
   <section class="strip">
     <div class="wrap strip-inner">
-      <div class="stat"><b>500+</b><span>Homes renewed</span></div>
-      <div class="stat"><b>5★</b><span>Neighbor-rated service</span></div>
-      <div class="stat"><b>100%</b><span>Satisfaction focused</span></div>
+      <div class="stat"><b data-count="500" data-suffix="+">500+</b><span>Homes renewed</span></div>
+      <div class="stat"><b>5&#9733;</b><span>Neighbor-rated service</span></div>
+      <div class="stat"><b data-count="100" data-suffix="%">100%</b><span>Satisfaction focused</span></div>
       <div class="stat"><b>Free</b><span>On-site estimates</span></div>
     </div>
   </section>
@@ -375,16 +379,29 @@
       </header>
 
       <figure class="ba">
-        <div class="ba-pair">
-          <div class="ba-shot">
-            <span class="ba-tag ba-tag-before">Before</span>
-            <img src="assets/driveway-before.jpg" alt="Driveway and sidewalk before cleaning, concrete dulled gray with dirt and staining" width="900" height="1200" loading="lazy" decoding="async">
-          </div>
-          <div class="ba-shot">
-            <span class="ba-tag ba-tag-after">After</span>
+        <div class="reveal-wrap" data-reveal tabindex="0" role="slider"
+             aria-label="Drag to compare the driveway before and after cleaning"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"
+             aria-valuetext="50% revealed">
+          <div class="reveal-after">
             <img src="assets/driveway-after.jpg" alt="The same driveway and sidewalk after cleaning, concrete back to an even, bright finish" width="900" height="1200" loading="lazy" decoding="async">
           </div>
+          <div class="reveal-before">
+            <img src="assets/driveway-before.jpg" alt="Driveway and sidewalk before cleaning, concrete dulled gray with dirt and staining" width="900" height="1200" loading="lazy" decoding="async">
+          </div>
+          <span class="reveal-tag reveal-tag-before">Before</span>
+          <span class="reveal-tag reveal-tag-after">After</span>
+          <div class="reveal-handle">
+            <span class="reveal-grip">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 7 5 12l4.5 5 1.4-1.4L7.8 12l3.1-3.6L9.5 7zm5 0-1.4 1.4 3.1 3.6-3.1 3.6L14.5 17 19 12l-4.5-5z"/></svg>
+            </span>
+          </div>
         </div>
+
+        <p class="reveal-hint">
+          Drag the handle to see the difference &mdash; or use <kbd>&larr;</kbd> <kbd>&rarr;</kbd>
+        </p>
+
         <figcaption>
           Driveway and sidewalk surface clean, Baton Rouge. Years of dirt and
           algae off the concrete in a single afternoon — no stripes, no wand

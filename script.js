@@ -41,21 +41,70 @@ const CONFIG = {
 /* ---------- Mobile nav ---------- */
 const navToggle = document.getElementById("navToggle");
 const siteNav = document.getElementById("siteNav");
+const navScrim = document.getElementById("navScrim");
 
-navToggle?.addEventListener("click", () => {
-  const open = siteNav.classList.toggle("open");
+function setNav(open) {
+  siteNav.classList.toggle("open", open);
+  document.body.classList.toggle("nav-open", open);
   navToggle.setAttribute("aria-expanded", String(open));
   navToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  if (navScrim) navScrim.hidden = !open;
+}
+
+navToggle?.addEventListener("click", () => {
+  setNav(!siteNav.classList.contains("open"));
 });
 
-// Close the menu after tapping a link
+navScrim?.addEventListener("click", () => setNav(false));
+
+// Close after tapping a link, so the anchor scroll is visible
 siteNav?.addEventListener("click", (e) => {
-  if (e.target.closest("a") && siteNav.classList.contains("open")) {
-    siteNav.classList.remove("open");
-    navToggle.setAttribute("aria-expanded", "false");
-    navToggle.setAttribute("aria-label", "Open menu");
+  if (e.target.closest("a")) setNav(false);
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && siteNav?.classList.contains("open")) {
+    setNav(false);
+    navToggle.focus();
   }
 });
+
+/* ---------- Header: compact once past the hero ---------- */
+const header = document.querySelector(".site-header");
+const onScroll = () => header?.classList.toggle("is-stuck", window.scrollY > 40);
+onScroll();
+window.addEventListener("scroll", onScroll, { passive: true });
+
+/* ---------- Scroll spy ----------
+   Highlights whichever section is currently under the header. Uses the
+   section nearest the top of the viewport rather than IntersectionObserver
+   ratios, which get unreliable with sections of wildly different heights. */
+const navLinks = [...document.querySelectorAll("[data-nav-link]")];
+const sections = navLinks
+  .map((a) => document.querySelector(a.getAttribute("href")))
+  .filter(Boolean);
+
+if (sections.length) {
+  let ticking = false;
+  const spy = () => {
+    ticking = false;
+    const line = window.scrollY + (header?.offsetHeight || 80) + 40;
+    let current = -1;
+    sections.forEach((sec, i) => {
+      if (sec.offsetTop <= line) current = i;
+    });
+    // Past the bottom of the page, pin to the last section
+    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+      current = sections.length - 1;
+    }
+    navLinks.forEach((a, i) => a.classList.toggle("is-active", i === current));
+  };
+  window.addEventListener("scroll", () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(spy); }
+  }, { passive: true });
+  window.addEventListener("resize", spy);
+  spy();
+}
 
 /* ---------- Footer year ---------- */
 const yearEl = document.getElementById("year");
@@ -225,6 +274,97 @@ document.querySelectorAll("[data-pay-link]").forEach((el) => {
   const note = card.querySelector(".pay-card-head p");
   if (note) note.textContent = "Card payments are being set up. Give us a call and we'll take it over the phone or send an invoice.";
 });
+
+/* ---------- Drag-to-reveal before/after ----------
+   Pointer events cover mouse, touch and pen in one path. The position lives
+   in a CSS custom property so the clip and the handle stay in lockstep
+   without touching layout. */
+document.querySelectorAll("[data-reveal]").forEach((wrap) => {
+  let dragging = false;
+
+  const set = (pct) => {
+    const v = Math.max(0, Math.min(100, pct));
+    wrap.style.setProperty("--pos", v + "%");
+    wrap.setAttribute("aria-valuenow", Math.round(v));
+    wrap.setAttribute("aria-valuetext", Math.round(v) + "% revealed");
+  };
+
+  const fromEvent = (e) => {
+    const r = wrap.getBoundingClientRect();
+    set(((e.clientX - r.left) / r.width) * 100);
+  };
+
+  wrap.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    wrap.setPointerCapture(e.pointerId);
+    fromEvent(e);
+  });
+  wrap.addEventListener("pointermove", (e) => { if (dragging) fromEvent(e); });
+  const stop = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    try { wrap.releasePointerCapture(e.pointerId); } catch {}
+  };
+  wrap.addEventListener("pointerup", stop);
+  wrap.addEventListener("pointercancel", stop);
+
+  wrap.addEventListener("keydown", (e) => {
+    const now = parseFloat(wrap.getAttribute("aria-valuenow")) || 50;
+    const step = e.shiftKey ? 10 : 4;
+    if (e.key === "ArrowLeft")       { set(now - step); e.preventDefault(); }
+    else if (e.key === "ArrowRight") { set(now + step); e.preventDefault(); }
+    else if (e.key === "Home")       { set(0);  e.preventDefault(); }
+    else if (e.key === "End")        { set(100); e.preventDefault(); }
+  });
+
+  set(50);
+
+  // Nudge it once on first view so it reads as draggable rather than as a
+  // static photo with a line down the middle.
+  if ("IntersectionObserver" in window &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        const start = performance.now();
+        const tick = (t) => {
+          const p = Math.min(1, (t - start) / 1400);
+          // out → back, so it lands where it started
+          const eased = Math.sin(p * Math.PI);
+          set(50 + eased * 22);
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    }, { threshold: 0.45 });
+    io.observe(wrap);
+  }
+});
+
+/* ---------- Stat counters ---------- */
+const counters = document.querySelectorAll("[data-count]");
+if (counters.length && "IntersectionObserver" in window &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      io.unobserve(entry.target);
+      const el = entry.target;
+      const target = parseFloat(el.dataset.count);
+      const suffix = el.dataset.suffix || "";
+      const start = performance.now();
+      const tick = (t) => {
+        const p = Math.min(1, (t - start) / 1100);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }, { threshold: 0.5 });
+  counters.forEach((el) => io.observe(el));
+}
 
 /* ---------- Photo zoom ----------
    Job photos are detail shots — a rust stain or a shingle line is hard to
