@@ -24,7 +24,7 @@
    button. Nothing looks broken to a customer either way.
 --------------------------------------------------------- */
 const CONFIG = {
-  WEB3FORMS_KEY: "",                    // e.g. "a1b2c3d4-0000-0000-0000-abcdef123456"
+  WEB3FORMS_KEY: "e8fd2ca4-e82a-416d-938c-f211d2668793",
   SQUARE_PAY_LINK: "",                  // e.g. "https://square.link/u/XXXXXXXX"
   // Share-link form of the page (numeric page id 61551017668250). If a
   // username is ever set on the page, swap in facebook.com/<username> — it's
