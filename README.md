@@ -33,7 +33,7 @@ Everything configurable lives in one place — the `CONFIG` block at the top of
 ```js
 const CONFIG = {
   WEB3FORMS_KEY: "",                    // quote requests → email
-  SQUARE_PAY_LINK: "",                  // the Pay Now button
+  STRIPE_PAY_LINK: "",                  // the Pay Now button
   FACEBOOK_URL: "",                     // every Facebook link on the page
   BUSINESS_EMAIL: "Smilys_softwash@yahoo.com",
   PHONE: "+12254055532",
@@ -42,7 +42,7 @@ const CONFIG = {
 
 Both are safe to keep in this file. Neither one can move money or read mail on
 its own — the form key only lets a submission be *sent* to the verified address,
-and the Square link is the same public URL you'd text a customer.
+and the Stripe link is the same public URL you'd text a customer.
 
 Until each is filled in, the site degrades gracefully rather than breaking:
 the forms fall back to opening the visitor's email app, and Pay Now becomes a
@@ -79,49 +79,43 @@ web3forms.com and swapping in the new key — the key *is* the destination.
 Update `BUSINESS_EMAIL` to match, since that's the fallback used when the key
 is missing.
 
-### 2. Pay Now button (Square)
+### 2. Pay Now button (Stripe)
 
-The link type must be **Collect a payment** with the buyer-entered amount
-option switched on. Job prices vary, so a fixed-price link would mean creating
-a new link for every customer. The option is labelled differently depending on
-where you make it:
+Job prices vary, so the link has to let the customer type in the amount from
+their invoice. A fixed-price link would mean creating a new one per customer.
 
-**On a phone (Square Point of Sale app):**
+**Use the web dashboard, not the phone app.** The Stripe iOS app can't create
+customer-chooses-the-amount links at all — the option isn't there. This is the
+step to get wrong, so start at dashboard.stripe.com in a browser.
 
-1. `☰ More` → `Payment links`. Not there? `☰ More` → `Add-ons` →
-   `Payment links` → `Add for free`.
-2. Tap `+`, choose **Collect a payment**.
-3. Name it `Smilys Softwash — Invoice Payment` (this is what the customer sees
-   at checkout, so avoid anything cryptic).
-4. Toggle **Allow buyer to enter amount** ON — it sits at the bottom of the
-   form and is easy to scroll past.
-5. `Save` → open the link → `Share link` → `Copy link`.
+1. Go to **dashboard.stripe.com** → `Payment Links` → **New**.
+2. Select **Customers choose what to pay**.
+3. Title it `Smilys Softwash — Invoice Payment`. This is what the customer
+   reads at checkout and roughly what shows on their statement, so keep it
+   recognisable.
+4. Optionally set a minimum. The maximum defaults to $10,000 — fine for
+   residential work, but it needs raising via Stripe support if a commercial
+   job ever exceeds it.
+5. **Create link**, then copy the `buy.stripe.com/...` URL into
+   `STRIPE_PAY_LINK`.
 
-**On a computer (Square Dashboard):**
-
-1. `Payments & orders` → `Payment links` → `Create link`.
-2. **Collect a payment** → `Continue`.
-3. Tick **Allow buyer to set the price**.
-4. Title it, `Save`, then `Share` → copy the URL.
-
-Either way you end up with a `square.link/u/XXXXXXXX` URL. Paste it into
-`SQUARE_PAY_LINK`.
-
-The button opens Square's hosted checkout in a new tab. Card details are entered
-on Square's page, never on this site — that keeps the business out of PCI scope
+The button opens Stripe's hosted checkout in a new tab. Card details are entered
+on Stripe's page, never on this site — that keeps the business out of PCI scope
 entirely, which is exactly why it's built this way. **Don't** replace this with a
 card form on the site.
 
-Square emails the customer a receipt automatically and the payment lands in the
-same Square account as invoices and card-reader sales.
+Stripe emails the customer a receipt automatically. Note payouts land in the
+bank account attached to Stripe, which is separate from any Square invoicing
+still in use — worth deciding which one is the system of record before both are
+running.
 
 ## Things worth updating
 
 - **Phone/email** — set in `script.js` (`CONFIG`) and in the `tel:` / `sms:`
   links in `index.html`.
-- **Payment copy** — the Pay Online section promises Apple Pay, Google Pay and
-  Cash App Pay. Square supports all three, but confirm they're switched on in
-  the Square account before going live.
+- **Payment copy** — the Pay Online section promises Apple Pay and Google Pay.
+  Stripe supports both, but they only appear at checkout once the domain is
+  registered under Payment method domains in the Stripe dashboard.
 - **Reviews** — the three testimonials in the `#reviews` section are
   placeholders written to sound like real local jobs. Swap in actual customer
   quotes (with permission) before going live.

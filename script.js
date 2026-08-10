@@ -13,10 +13,10 @@
       Get the key free at web3forms.com: type the business email,
       click the confirmation link it sends, copy the access key.
 
-   2. SQUARE_PAY_LINK — the "Pay Now" button on the site.
-      In Square Dashboard: Payments → Payment Links → Create →
-      "Collect a payment", turn ON "Let customer enter the amount",
-      then copy the square.link URL it gives you.
+   2. STRIPE_PAY_LINK — the "Pay Now" button on the site.
+      In the Stripe Dashboard (web, not the phone app): Payment Links →
+      New → pick "Customers choose what to pay" → Create link, then copy
+      the buy.stripe.com URL it gives you.
 
    Until each one is filled in, the site degrades gracefully
    instead of breaking: the forms fall back to opening the
@@ -25,7 +25,7 @@
 --------------------------------------------------------- */
 const CONFIG = {
   WEB3FORMS_KEY: "e8fd2ca4-e82a-416d-938c-f211d2668793",
-  SQUARE_PAY_LINK: "",                  // e.g. "https://square.link/u/XXXXXXXX"
+  STRIPE_PAY_LINK: "",                  // e.g. "https://buy.stripe.com/XXXXXXXX"
   // Share-link form of the page (numeric page id 61551017668250). If a
   // username is ever set on the page, swap in facebook.com/<username> — it's
   // shorter and reads better in the footer.
@@ -201,11 +201,11 @@ fbLinks.forEach((el) => {
 });
 
 /* ---------- Pay Now button ----------
-   Points at the Square checkout link once one is configured. Until then it
+   Points at the Stripe checkout link once one is configured. Until then it
    becomes a call button, so a customer never taps a dead link. */
 document.querySelectorAll("[data-pay-link]").forEach((el) => {
-  if (CONFIG.SQUARE_PAY_LINK) {
-    el.href = CONFIG.SQUARE_PAY_LINK;
+  if (CONFIG.STRIPE_PAY_LINK) {
+    el.href = CONFIG.STRIPE_PAY_LINK;
     el.target = "_blank";
     el.rel = "noopener";
     return;
