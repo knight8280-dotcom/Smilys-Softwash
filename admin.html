@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin | Smilys Softwash</title>
+<!-- Not a public page: keep it out of search results entirely. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/logo.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+
+<header class="admin-bar">
+  <div class="admin-bar-inner">
+    <a class="admin-brand" href="index.html">
+      <img src="assets/logo.jpeg" alt="Smilys Softwash" width="140" height="102">
+    </a>
+    <div class="admin-bar-actions" id="barActions" hidden>
+      <span class="admin-who" id="whoami"></span>
+      <button class="btn btn-ghost" type="button" id="signOut">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main class="admin-main">
+
+  <!-- LOGIN -->
+  <section class="admin-login" id="loginPanel">
+    <div class="admin-card">
+      <h1>Admin sign in</h1>
+      <p class="admin-sub">Quote requests and job photos for smilyssoftwash.com</p>
+      <form id="loginForm">
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="username" required>
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button class="btn btn-primary btn-block btn-lg" type="submit">Sign in</button>
+        <p class="form-status" id="loginStatus" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" hidden>
+
+    <div class="admin-tabs" role="tablist">
+      <button class="admin-tab is-on" type="button" role="tab" aria-selected="true" data-tab="leads">
+        Quote requests <span class="admin-pill" id="leadCount">0</span>
+      </button>
+      <button class="admin-tab" type="button" role="tab" aria-selected="false" data-tab="photos">
+        Job photos
+      </button>
+    </div>
+
+    <!-- Leads -->
+    <section class="admin-panel is-on" id="panel-leads">
+      <div class="admin-toolbar">
+        <div class="admin-filters" id="statusFilters">
+          <button class="chip is-on" type="button" data-status="all">All</button>
+          <button class="chip" type="button" data-status="new">New</button>
+          <button class="chip" type="button" data-status="quoted">Quoted</button>
+          <button class="chip" type="button" data-status="scheduled">Scheduled</button>
+          <button class="chip" type="button" data-status="done">Done</button>
+          <button class="chip" type="button" data-status="lost">Lost</button>
+        </div>
+        <button class="btn btn-ghost" type="button" id="refreshLeads">Refresh</button>
+      </div>
+      <div id="leadsList" class="leads-list"></div>
+      <p class="admin-empty" id="leadsEmpty" hidden>No quote requests yet.</p>
+    </section>
+
+    <!-- Photos -->
+    <section class="admin-panel" id="panel-photos">
+      <div class="admin-card admin-upload">
+        <h2>Add a job photo</h2>
+        <p class="admin-sub">
+          Add an “after” photo on its own, or add both and the site shows a
+          drag-to-compare slider.
+        </p>
+        <form id="photoForm">
+          <label class="field">
+            <span>Title</span>
+            <input type="text" name="title" placeholder="Roof soft wash" required>
+          </label>
+          <label class="field">
+            <span>Caption</span>
+            <textarea name="caption" rows="2" placeholder="What the job involved and how it went."></textarea>
+          </label>
+          <div class="grid-2">
+            <label class="field">
+              <span>After photo <i>(required)</i></span>
+              <input type="file" name="after" accept="image/jpeg,image/png,image/webp" required>
+            </label>
+            <label class="field">
+              <span>Before photo <i>(optional)</i></span>
+              <input type="file" name="before" accept="image/jpeg,image/png,image/webp">
+            </label>
+          </div>
+          <button class="btn btn-primary btn-lg" type="submit">Upload photo</button>
+          <p class="form-status" id="photoStatus" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <h2 class="admin-h2">On the site</h2>
+      <div id="photoList" class="photo-list"></div>
+      <p class="admin-empty" id="photosEmpty" hidden>No photos uploaded yet.</p>
+    </section>
+  </div>
+</main>
+
+<script src="admin.js"></script>
+</body>
+</html>

@@ -185,6 +185,82 @@ stain are unreadable at thumbnail size otherwise.
 - Write alt text describing the surface and its condition, not "before photo" —
   it's what a screen reader announces and what Google indexes.
 
+## Supabase
+
+Project `smilys-softwash` (ref `lzqcnqqytconglqqlliy`, org KnightLLC, free
+tier). It does two jobs: it keeps a permanent record of every quote request,
+and it stores job photos so the gallery can be updated without a code change.
+
+Everything talks to Supabase over plain REST via `fetch`. No client library,
+so the site keeps its no-build, zero-dependency setup.
+
+### The key in the source is meant to be public
+
+`SUPABASE_KEY` is the publishable key. It identifies the project; it grants
+nothing. What an anonymous caller may do is decided server-side by row level
+security:
+
+| Action | Anonymous visitor | Signed-in non-admin | Admin |
+|---|---|---|---|
+| Submit a quote request | yes | yes | yes |
+| Read quote requests | **no** | **no** | yes |
+| Update / delete leads | **no** | **no** | yes |
+| Read published photos | yes | yes | yes |
+| Upload / edit / delete photos | **no** | **no** | yes |
+
+Admin rights come from membership of the `admins` table, **not** from simply
+being signed in. That distinction is deliberate: if signups are ever left
+enabled, a stranger who registers still gets nothing.
+
+Verified against the live API with the public key: inserting a lead returns
+201, every read of `leads` comes back empty, and `is_admin()` is denied
+outright to anonymous callers.
+
+### Tables
+
+- **`leads`** — one row per quote request. `status` is one of `new`, `quoted`,
+  `scheduled`, `done`, `lost`. Every text field has a length cap, because the
+  insert endpoint is open to the world.
+- **`photos`** — gallery entries. `after_path` is required; when `before_path`
+  is also set the pair renders as a drag-to-compare slider on the site,
+  otherwise it renders as a single card. `published` controls visibility.
+- **`admins`** — user ids allowed to manage the above. No insert policy
+  exists, so membership can only be granted from the dashboard.
+
+Storage bucket **`job-photos`** is public-read, admin-write, capped at 10 MB
+per file and limited to JPEG, PNG and WebP.
+
+### Quote requests go to two places
+
+The form writes to the database *and* emails via Web3Forms, in parallel. It
+reports success if **either** lands, and only shows an error if both fail. A
+lead is no longer lost because one service was having a bad morning — and the
+database copy can't be deleted by accident or eaten by a spam filter.
+
+### Admin console
+
+`admin.html` — sign in with a Supabase account that is in the `admins` table.
+It lists quote requests with colour-coded status, filters, one-tap call/text
+links, and handles photo upload, hide/show and delete. It's `noindex` and not
+linked from the site.
+
+### Setup still needed in the Supabase dashboard
+
+Two things can only be done from supabase.com, at
+`https://supabase.com/dashboard/project/lzqcnqqytconglqqlliy`:
+
+1. **Create the admin user, then grant it admin.**
+   Authentication → Users → Add user (with a password, and tick auto-confirm).
+   Then SQL Editor:
+   ```sql
+   insert into public.admins (user_id, email)
+   select id, email from auth.users where email = 'smilyssoftwash@gmail.com';
+   ```
+2. **Turn off public signups.** Authentication → Sign In / Providers → Email →
+   disable "Allow new users to sign up". The `admins` gate already means a
+   stranger who registers can't read anything, but there's no reason to let
+   strangers create accounts at all.
+
 ## Getting found on Google
 
 `robots.txt` and `sitemap.xml` are in the repo root and served at

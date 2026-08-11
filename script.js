@@ -36,7 +36,18 @@ const CONFIG = {
   // a new key registered against this address at web3forms.com.
   BUSINESS_EMAIL: "smilyssoftwash@gmail.com",
   PHONE: "+12254055532",
+
+  // Supabase. This key is *meant* to be public — it identifies the project,
+  // it does not grant access. What it can do is decided entirely by row
+  // level security on the server: submit a quote request, and read photos
+  // marked published. It cannot read a single lead back. Everything else
+  // requires an admin login.
+  SUPABASE_URL: "https://lzqcnqqytconglqqlliy.supabase.co",
+  SUPABASE_KEY: "sb_publishable_NBoxThVxs0Nm94JTF45hig_0o59Pmlq",
 };
+
+const SUPABASE_READY = Boolean(CONFIG.SUPABASE_URL && CONFIG.SUPABASE_KEY);
+const PHOTO_BASE = `${CONFIG.SUPABASE_URL}/storage/v1/object/public/job-photos/`;
 
 /* ---------- Mobile nav ---------- */
 const navToggle = document.getElementById("navToggle");
@@ -186,6 +197,33 @@ async function submitToWeb3Forms(form, q) {
   return body;
 }
 
+// Writes the lead to the database. This is the durable copy — email can be
+// filtered, deleted or bounce, and then the lead is simply gone.
+async function saveLead(form, q) {
+  const res = await fetch(`${CONFIG.SUPABASE_URL}/rest/v1/leads`, {
+    method: "POST",
+    headers: {
+      apikey: CONFIG.SUPABASE_KEY,
+      "Content-Type": "application/json",
+      // Don't ask for the row back: the public role has no read access, so
+      // requesting a representation would fail the insert.
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({
+      name: q.name,
+      phone: q.phone,
+      email: q.email || null,
+      city: q.city || null,
+      services: q.services || null,
+      details: q.details || null,
+      source: form.classList.contains("quick-form")
+        ? "Hero quick-quote form"
+        : "Full quote form",
+    }),
+  });
+  if (!res.ok) throw new Error("Supabase insert failed: " + res.status);
+}
+
 function openMailFallback(q) {
   const href =
     `mailto:${CONFIG.BUSINESS_EMAIL}` +
@@ -207,25 +245,40 @@ document.querySelectorAll("[data-quote-form]").forEach((form) => {
     const btn = form.querySelector("button[type=submit]");
     const label = btn?.textContent;
 
-    if (CONFIG.WEB3FORMS_KEY) {
+    if (CONFIG.WEB3FORMS_KEY || SUPABASE_READY) {
       if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
-      try {
-        await submitToWeb3Forms(form, q);
+
+      // Two independent destinations: the database is the durable record,
+      // the email is the notification. Send to both and treat the request as
+      // captured if either lands — losing a customer because one service was
+      // having a bad morning is not an acceptable outcome.
+      const jobs = [];
+      if (SUPABASE_READY) jobs.push(saveLead(form, q));
+      if (CONFIG.WEB3FORMS_KEY) jobs.push(submitToWeb3Forms(form, q));
+
+      const results = await Promise.allSettled(jobs);
+      const captured = results.some((r) => r.status === "fulfilled");
+
+      results
+        .filter((r) => r.status === "rejected")
+        .forEach((r) => console.warn("Quote request delivery failed:", r.reason));
+
+      if (captured) {
         form.reset();
         setStatus(form, "Got it! We'll be in touch shortly — usually the same day.", "ok");
-      } catch (err) {
+      } else {
         setStatus(
           form,
           `Something went wrong sending that. Please call or text us at ${formatPhone(CONFIG.PHONE)}.`,
           "err"
         );
-      } finally {
-        if (btn) { btn.disabled = false; btn.textContent = label; }
       }
+
+      if (btn) { btn.disabled = false; btn.textContent = label; }
       return;
     }
 
-    // No form key configured yet — hand off to the visitor's email app.
+    // Nothing configured yet — hand off to the visitor's email app.
     openMailFallback(q);
     setStatus(
       form,
@@ -279,7 +332,9 @@ document.querySelectorAll("[data-pay-link]").forEach((el) => {
    Pointer events cover mouse, touch and pen in one path. The position lives
    in a CSS custom property so the clip and the handle stay in lockstep
    without touching layout. */
-document.querySelectorAll("[data-reveal]").forEach((wrap) => {
+function initReveal(wrap) {
+  if (wrap.dataset.revealReady) return;   // photos added later must not double-bind
+  wrap.dataset.revealReady = "1";
   let dragging = false;
 
   const set = (pct) => {
@@ -340,7 +395,75 @@ document.querySelectorAll("[data-reveal]").forEach((wrap) => {
     }, { threshold: 0.45 });
     io.observe(wrap);
   }
-});
+}
+
+document.querySelectorAll("[data-reveal]").forEach(initReveal);
+
+/* ---------- Gallery photos from Supabase ----------
+   The photos already in the markup stay put; anything published in the
+   database is appended to them. That way the gallery degrades to exactly
+   what it is today if the request fails, JS is off, or the table is empty —
+   the section is never empty and never flashes. */
+async function loadPhotos() {
+  const gallery = document.querySelector(".gallery");
+  if (!gallery || !SUPABASE_READY) return;
+
+  let rows;
+  try {
+    const res = await fetch(
+      `${CONFIG.SUPABASE_URL}/rest/v1/photos` +
+      `?select=title,caption,alt_text,after_path,before_path` +
+      `&published=is.true&order=sort_order.asc,created_at.desc`,
+      { headers: { apikey: CONFIG.SUPABASE_KEY } }
+    );
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    rows = await res.json();
+  } catch (err) {
+    console.warn("Could not load gallery photos:", err);
+    return;
+  }
+  if (!Array.isArray(rows) || !rows.length) return;
+
+  const esc = (s) =>
+    String(s ?? "").replace(/[&<>"']/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  rows.forEach((row) => {
+    const fig = document.createElement("figure");
+    fig.className = "shot";
+    const alt = esc(row.alt_text || row.title);
+    const after = PHOTO_BASE + encodeURIComponent(row.after_path);
+
+    if (row.before_path) {
+      // A pair renders as its own drag-to-reveal comparison.
+      const before = PHOTO_BASE + encodeURIComponent(row.before_path);
+      fig.innerHTML = `
+        <div class="reveal-wrap" data-reveal tabindex="0" role="slider"
+             aria-label="Drag to compare ${alt}"
+             aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+          <div class="reveal-after"><img src="${after}" alt="${alt} — after cleaning" loading="lazy" decoding="async"></div>
+          <div class="reveal-before"><img src="${before}" alt="${alt} — before cleaning" loading="lazy" decoding="async"></div>
+          <span class="reveal-tag reveal-tag-before">Before</span>
+          <span class="reveal-tag reveal-tag-after">After</span>
+          <div class="reveal-handle"><span class="reveal-grip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 7 5 12l4.5 5 1.4-1.4L7.8 12l3.1-3.6L9.5 7zm5 0-1.4 1.4 3.1 3.6-3.1 3.6L14.5 17 19 12l-4.5-5z"/></svg>
+          </span></div>
+        </div>
+        <figcaption><b>${esc(row.title)}</b>${esc(row.caption || "")}</figcaption>`;
+    } else {
+      fig.innerHTML = `
+        <button class="shot-btn" type="button" data-zoom aria-label="Enlarge: ${alt}">
+          <img src="${after}" alt="${alt}" loading="lazy" decoding="async">
+        </button>
+        <figcaption><b>${esc(row.title)}</b>${esc(row.caption || "")}</figcaption>`;
+    }
+    gallery.appendChild(fig);
+  });
+
+  // Newly inserted nodes need the same behaviour as the markup ones.
+  gallery.querySelectorAll("[data-reveal]").forEach(initReveal);
+  gallery.querySelectorAll("[data-zoom]").forEach(initZoom);
+}
 
 /* ---------- Stat counters ---------- */
 const counters = document.querySelectorAll("[data-count]");
@@ -369,44 +492,44 @@ if (counters.length && "IntersectionObserver" in window &&
 /* ---------- Photo zoom ----------
    Job photos are detail shots — a rust stain or a shingle line is hard to
    judge at gallery size, so tapping one opens it full screen. */
-const zoomTriggers = document.querySelectorAll("[data-zoom]");
-if (zoomTriggers.length) {
-  const overlay = document.createElement("div");
-  overlay.className = "zoom";
-  overlay.innerHTML =
-    '<button class="zoom-close" type="button" aria-label="Close photo">&times;</button><img alt="">';
-  document.body.appendChild(overlay);
+const zoomOverlay = document.createElement("div");
+zoomOverlay.className = "zoom";
+zoomOverlay.innerHTML =
+  '<button class="zoom-close" type="button" aria-label="Close photo">&times;</button><img alt="">';
+document.body.appendChild(zoomOverlay);
 
-  const overlayImg = overlay.querySelector("img");
-  let lastFocused = null;
+const zoomImg = zoomOverlay.querySelector("img");
+let zoomLastFocused = null;
 
-  const open = (img) => {
-    overlayImg.src = img.src;
-    overlayImg.alt = img.alt;
-    overlay.classList.add("open");
+function closeZoom() {
+  zoomOverlay.classList.remove("open");
+  document.body.style.overflow = "";
+  zoomImg.removeAttribute("src");
+  zoomLastFocused?.focus();
+}
+
+function initZoom(btn) {
+  if (btn.dataset.zoomReady) return;
+  btn.dataset.zoomReady = "1";
+  btn.addEventListener("click", () => {
+    const img = btn.querySelector("img");
+    zoomLastFocused = btn;
+    zoomImg.src = img.src;
+    zoomImg.alt = img.alt;
+    zoomOverlay.classList.add("open");
     document.body.style.overflow = "hidden";
-    overlay.querySelector(".zoom-close").focus();
-  };
-
-  const close = () => {
-    overlay.classList.remove("open");
-    document.body.style.overflow = "";
-    overlayImg.removeAttribute("src");
-    lastFocused?.focus();
-  };
-
-  zoomTriggers.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      lastFocused = btn;
-      open(btn.querySelector("img"));
-    });
-  });
-
-  overlay.addEventListener("click", close);
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && overlay.classList.contains("open")) close();
+    zoomOverlay.querySelector(".zoom-close").focus();
   });
 }
+
+document.querySelectorAll("[data-zoom]").forEach(initZoom);
+zoomOverlay.addEventListener("click", closeZoom);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && zoomOverlay.classList.contains("open")) closeZoom();
+});
+
+// Kick off the gallery fetch now that initReveal/initZoom exist.
+loadPhotos();
 
 /* ---------- Reveal on scroll ---------- */
 const reveals = document.querySelectorAll(".card, .steps li, .quote, .why-list li");
