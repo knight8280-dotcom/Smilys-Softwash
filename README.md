@@ -11,7 +11,8 @@ Greater Baton Rouge, Louisiana.
 index.html     single-page site (hero, services, why us, process, areas, reviews, FAQ, quote)
 styles.css     all styling, brand colors taken from the sign logo
 script.js      mobile nav, quote form handling, scroll reveals
-assets/logo.jpeg
+assets/        logo and job photos — each served as WebP with a JPEG fallback
+favicon.ico    house mark from the logo (16/32/48 px), plus apple-touch-icon.png
 ```
 
 No build step, no dependencies. It's plain HTML/CSS/JS.
@@ -161,6 +162,11 @@ im.save("assets/roof-before.jpg", "JPEG", quality=80, optimize=True, progressive
 That takes a ~1 MB phone photo down to roughly 200 KB with no visible loss at
 the size it's displayed. `exif_transpose` matters — without it, portrait phone
 photos show up rotated in some browsers.
+
+The photos already in `assets/` also ship a WebP copy (`im.save("….webp",
+"WEBP", quality=78)` does it from the same Pillow image) served via
+`<picture>` with the JPEG as fallback — worth doing for new photos too, it's
+roughly half the bytes at the same quality.
 
 There are two layouts in the `#work` section, depending on what you have:
 

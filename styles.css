@@ -266,6 +266,10 @@ p { margin: 0 0 1rem; }
   color: #fff;
 }
 .hero-bg { position: absolute; inset: 0; }
+/* The <picture> wrappers (WebP with JPEG fallback) must pass the full-bleed
+   sizing through, or the img's percentage height has nothing to resolve
+   against and the layout collapses. */
+.hero-bg picture { display: block; width: 100%; height: 100%; }
 .hero-bg img {
   width: 100%; height: 100%;
   object-fit: cover;
@@ -560,6 +564,10 @@ input:focus, select:focus, textarea:focus {
   content: "";
   position: absolute; inset: 0; z-index: -2;
   background: url("assets/house-clean.jpg") center 62% / cover no-repeat;
+  /* Browsers that understand image-set() get the smaller WebP; anything
+     older silently keeps the JPEG from the shorthand above. */
+  background-image: -webkit-image-set(url("assets/house-clean.webp") type("image/webp"), url("assets/house-clean.jpg") type("image/jpeg"));
+  background-image: image-set(url("assets/house-clean.webp") type("image/webp"), url("assets/house-clean.jpg") type("image/jpeg"));
 }
 .cta-banner::after {
   content: "";
@@ -589,6 +597,7 @@ input:focus, select:focus, textarea:focus {
   user-select: none;
   cursor: ew-resize;
 }
+.reveal-wrap picture { display: block; height: 100%; }
 .reveal-wrap img {
   display: block;
   width: 100%;

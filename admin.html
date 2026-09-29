@@ -6,7 +6,8 @@
 <title>Admin | Smilys Softwash</title>
 <!-- Not a public page: keep it out of search results entirely. -->
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="assets/logo.jpeg">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +19,10 @@
 <header class="admin-bar">
   <div class="admin-bar-inner">
     <a class="admin-brand" href="index.html">
-      <img src="assets/logo.jpeg" alt="Smilys Softwash" width="140" height="102">
+      <picture>
+        <source type="image/webp" srcset="assets/logo-400.webp">
+        <img src="assets/logo-400.jpg" alt="Smilys Softwash" width="400" height="268">
+      </picture>
     </a>
     <div class="admin-bar-actions" id="barActions" hidden>
       <span class="admin-who" id="whoami"></span>
