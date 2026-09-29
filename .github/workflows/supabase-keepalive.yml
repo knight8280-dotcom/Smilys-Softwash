@@ -1,0 +1,35 @@
+# Pings the site's Supabase database once a day so the free-tier project
+# doesn't get auto-paused after ~7 days without traffic. A paused project
+# would silently stop quote requests from being saved.
+#
+# The request is a read-only GET for one row of the public photo gallery —
+# the same table, URL and publishable key the live site already uses in
+# script.js. It writes nothing and uses no secrets.
+#
+# Note: GitHub automatically disables scheduled workflows in repositories
+# with no activity for 60 days. If that happens, re-enable it from the
+# Actions tab (Actions → Supabase keepalive → "Enable workflow"). It can
+# also be run by hand any time via "Run workflow" on that same page.
+name: Supabase keepalive
+
+on:
+  schedule:
+    # Once a day at 11:17 UTC. An off-peak, non-round minute avoids the
+    # load spike GitHub sees at the top of every hour.
+    - cron: "17 11 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read one row from the photos table
+        # --fail makes the job fail (and email the repo owner) if Supabase
+        # returns an error — which is what a paused project does.
+        run: |
+          curl --fail --silent --show-error --max-time 15 \
+            "https://lzqcnqqytconglqqlliy.supabase.co/rest/v1/photos?select=title&limit=1" \
+            -H "apikey: sb_publishable_NBoxThVxs0Nm94JTF45hig_0o59Pmlq"
