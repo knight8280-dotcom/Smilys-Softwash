@@ -36,7 +36,7 @@ const CONFIG = {
   WEB3FORMS_KEY: "",                    // quote requests → email
   STRIPE_PAY_LINK: "",                  // the Pay Now button
   FACEBOOK_URL: "",                     // every Facebook link on the page
-  BUSINESS_EMAIL: "Smilys_softwash@yahoo.com",
+  BUSINESS_EMAIL: "smilyssoftwash@gmail.com",
   PHONE: "+12254055532",
 };
 ```
@@ -51,14 +51,10 @@ call button. A customer never hits a dead end either way.
 
 ### 1. Quote requests → email (Web3Forms)
 
-`WEB3FORMS_KEY` is set and working. Both forms post to Web3Forms from the
-browser and the email arrives within seconds.
-
-**Pending: the key still delivers to the old `Smilys_softwash@yahoo.com`
-address.** The business has moved to `smilyssoftwash@gmail.com`, which is what
-the site now displays and what `BUSINESS_EMAIL` holds. A Web3Forms key *is* the
-destination — it can't be repointed — so finishing the move means registering
-the Gmail address at web3forms.com, confirming it, and swapping in the new key.
+`WEB3FORMS_KEY` is set to a key registered to `smilyssoftwash@gmail.com`, the
+same address `BUSINESS_EMAIL` holds. Both forms post to Web3Forms from the
+browser and the email arrives within seconds. (The original key delivered to
+the old `Smilys_softwash@yahoo.com` address and has been retired.)
 
 Note that Web3Forms rejects **server-side** posts on the free plan — the API
 only accepts submissions from a browser. That's fine for how the site uses it,
