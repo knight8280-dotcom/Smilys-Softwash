@@ -24,16 +24,16 @@
    button. Nothing looks broken to a customer either way.
 --------------------------------------------------------- */
 const CONFIG = {
-  WEB3FORMS_KEY: "e8fd2ca4-e82a-416d-938c-f211d2668793",
+  WEB3FORMS_KEY: "5bc83a55-d1fd-48f3-898d-6408b98d99f2",
   STRIPE_PAY_LINK: "",                  // e.g. "https://buy.stripe.com/XXXXXXXX"
   // Share-link form of the page (numeric page id 61551017668250). If a
   // username is ever set on the page, swap in facebook.com/<username> — it's
   // shorter and reads better in the footer.
   FACEBOOK_URL: "https://www.facebook.com/share/1YXxZPPUpR/",
   // Business address of record, shown on the page and used by the mail-app
-  // fallback. Note the Web3Forms key above still delivers to the old Yahoo
-  // address — the key IS the destination, so moving quote requests here needs
-  // a new key registered against this address at web3forms.com.
+  // fallback. The Web3Forms key above is registered to this same address —
+  // the key IS the destination, so changing this alone doesn't move where
+  // quote emails land; that takes a new key registered at web3forms.com.
   BUSINESS_EMAIL: "smilyssoftwash@gmail.com",
   PHONE: "+12254055532",
 
